@@ -46,13 +46,13 @@
 ## Fase 2 — ASP.NET Core e Web APIs (3-4 semanas)
 
 ### Tópicos
-- Minimal APIs vs Controllers (duas formas de escrever endpoints no ASP.NET Core — aprenda as duas, mercado usa ambas)
-- Dependency Injection nativo do .NET (isso é *built-in* na framework, diferente do Go onde você monta na mão)
-- Middleware pipeline (equivalente aos middlewares do Chi que você já usou)
-- Model binding e validação (`FluentValidation` ou Data Annotations)
-- Configuração (`appsettings.json`, variáveis de ambiente, `IOptions<T>`)
-- Logging estruturado (`Serilog`)
-- Documentação de API com Swagger/OpenAPI (nativo no ASP.NET Core)
+- [x] Minimal APIs vs Controllers
+- [x] Dependency Injection nativo do .NET
+- [x] Middleware pipeline
+- [x] Model binding e validação (`FluentValidation` ou Data Annotations)
+- [x] Configuração (`appsettings.json`, variáveis de ambiente, `IOptions<T>`)
+- [x] Logging estruturado (`Serilog`)
+- [x] Documentação de API com Swagger/OpenAPI (nativo no ASP.NET Core)
 
 ### Projeto prático
 **`habitrack-api`** — API de acompanhamento de hábitos (tipo um "streak tracker" simples): usuário cria hábitos, marca conclusão diária, vê sequência atual. Endpoints de CRUD de hábitos + registro de conclusões + autenticação JWT básica.
