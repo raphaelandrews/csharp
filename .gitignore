@@ -1,0 +1,30 @@
+# Pastas de fase — cada uma versionada em seu próprio repositório Git
+fase-*/
+fase_*
+Fase*
+
+# .NET build artifacts
+bin/
+obj/
+*.user
+*.suo
+*.cache
+*.vs/
+
+# IDE / editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test results
+TestResults/
+*.trx
+
+# NuGet
+*.nupkg
