@@ -2,7 +2,7 @@
 
 ## Contexto do projeto
 
-Este é um projeto de aprendizado de **C# e .NET**, seguindo um plano estruturado do nível júnior ao sênior (ver `ROADMAP.md`). O objetivo é dominar o ecossistema .NET para atuar como backend developer, com foco no mercado brasileiro e internacional.
+Este é um projeto de aprendizado de **C# e .NET**, seguindo um plano estruturado (ver `ROADMAP.md`). O objetivo é dominar o ecossistema .NET para atuar como backend developer.
 
 ## Perfil do usuário
 
@@ -38,7 +38,7 @@ A pasta `csharp/` é o **workspace-mãe** — contém os arquivos de planejament
 
 Cada fase tem sua própria pasta (`fase-1/`, `fase-2/`, etc.) contendo **apenas os arquivos `.md` de explicação** por tópico (ex: `fase-1/01-tipos-classes-structs.md`, `fase-1/02-oop.md`).
 
-Os projetos práticos ficam na **raiz do workspace** (`csharp/csharp-katas/`, `csharp/habitrack-api/`, `csharp/eventhub/`) e são versionados em seus próprios repositórios Git independentes — não são trackeados pelo repositório do workspace-mãe (listados no `.gitignore`).
+Os projetos práticos ficam na **raiz do workspace** (`csharp-katas/`, `habitrack/`, `eventhub/`, `api-performance-lab/`) e são versionados em seus próprios repositórios Git independentes — não são trackeados pelo repositório do workspace-mãe (listados no `.gitignore`).
 
 O fluxo é: cada vez que um tópico é explicado, o conteúdo vai para um arquivo numerado dentro da pasta da fase correspondente (trackeado pelo repo mãe). O código do projeto prático evolui em seu próprio repositório, na raiz do workspace.
 
@@ -57,11 +57,13 @@ csharp/                          ← repo: csharp (trackeia ROADMAP.md, AGENTS.m
 ├── fase-5/                      ← markdowns (tracked)
 ├── fase-6/                      ← markdowns (tracked)
 ├── fase-7/                      ← markdowns (tracked)
+├── fase-8/                      ← markdowns (tracked)
 ├── csharp-katas/                ← repo próprio (não tracked)
 ├── habitrack/
 │   ├── habitrack-api/            ← repo próprio (não tracked)
 │   └── habitrack-api.Tests/
-└── eventhub/                    ← repo próprio (não tracked)
+├── eventhub/                    ← repo próprio (não tracked)
+└── api-performance-lab/          ← repo próprio (não tracked)
 ```
 
 | Projeto | Fase | Repositório próprio |

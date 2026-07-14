@@ -1,161 +1,170 @@
 # 02 — Dapper (Micro-ORM)
 
-Dapper é mantido pelo Stack Overflow. Não tem Change Tracker, migrations nem LINQ→SQL. O que faz: mapeia resultados de SQL pra objetos C# com performance próxima de ADO.NET puro.
+## O que é Dapper e onde ele se posiciona
+
+Dapper é um **micro-ORM** mantido pelo Stack Overflow que resolve um problema específico: mapear resultados de queries SQL para objetos C# com o mínimo de overhead possível. Diferente do EF Core, Dapper não tem Change Tracker, não gera SQL, não faz migrations, não traduz LINQ. Ele apenas executa o SQL que você escreve e mapeia as colunas do resultado para propriedades de objetos.
+
+O espectro de abstração de acesso a dados no .NET:
 
 ```
 ADO.NET puro  ←  Dapper  ←  EF Core
-(mais rápido,    (SQL explícito,  (LINQ→SQL,
- mais código)    zero tracking)   Change Tracker)
+(mais rápido,     (SQL explícito,   (LINQ→SQL,
+ mais código)     zero tracking)    Change Tracker)
 ```
 
-```bash
-dotnet add package Dapper
-```
+Dapper opera uma camada acima do ADO.NET puro: você ainda escreve SQL manualmente, mas não precisa lidar com `DbDataReader`, `GetString()`, `GetInt32()`, e mapeamento manual de colunas. Dapper usa reflection para mapear colunas → propriedades automaticamente, e seu desempenho é próximo do ADO.NET puro porque faz caching agressivo dos mapeamentos.
 
 ---
 
 ## Uso básico
 
+```bash
+dotnet add package Dapper
+```
+
 ```csharp
 using Dapper;
 using Npgsql;
+
+// Configuração — Dapper usa IDbConnection (qualquer provider ADO.NET)
+using var conn = new NpgsqlConnection(connectionString);
 
 // Query — múltiplas linhas
 var habits = await conn.QueryAsync<Habit>(
     "SELECT * FROM Habits WHERE UserId = @UserId",
     new { UserId = userId });
 
-// QuerySingleOrDefault — 1 ou null
+// QuerySingleOrDefault — 1 linha ou null
 var habit = await conn.QuerySingleOrDefaultAsync<Habit>(
-    "SELECT * FROM Habits WHERE Id = @Id", new { Id = id });
+    "SELECT * FROM Habits WHERE Id = @Id",
+    new { Id = id });
 
-// Execute — INSERT/UPDATE/DELETE sem retorno
-var rows = await conn.ExecuteAsync(
-    "DELETE FROM Habits WHERE Id = @Id", new { Id = id });
+// Execute — INSERT/UPDATE/DELETE (retorna linhas afetadas)
+int rows = await conn.ExecuteAsync(
+    "INSERT INTO Habits (Id, UserId, Name, WeeklyFrequency) VALUES (@Id, @UserId, @Name, @WeeklyFrequency)",
+    new { habit.Id, habit.UserId, habit.Name, habit.WeeklyFrequency });
 
-// INSERT com RETURNING
-var id = await conn.QuerySingleAsync<Guid>(
-    @"INSERT INTO Habits (Name, UserId) VALUES (@Name, @UserId)
-      RETURNING Id", habit);
+// ExecuteScalar — valor único (COUNT, MAX, etc.)
+int count = await conn.ExecuteScalarAsync<int>(
+    "SELECT COUNT(*) FROM Habits WHERE UserId = @UserId",
+    new { UserId = userId });
 ```
 
----
+**Como Dapper mapeia colunas para propriedades**: por padrão, o nome da coluna no banco deve bater exatamente com o nome da propriedade C# (case-insensitive). Se os nomes diferem, você configura o mapeamento manualmente. Dapper não usa `[Column]` attributes por padrão — ele simplesmente tenta casar nomes.
 
-## Multi-mapping — JOIN manual
-
-```csharp
-var habitDict = new Dictionary<Guid, Habit>();
-
-await conn.QueryAsync<Habit, HabitCompletion, Habit>(
-    @"SELECT h.*, c.* FROM Habits h
-      LEFT JOIN HabitCompletions c ON c.HabitId = h.Id
-      WHERE h.UserId = @UserId",
-    (habit, completion) =>
-    {
-        if (!habitDict.TryGetValue(habit.Id, out var existing))
-        {
-            existing = habit;
-            existing.Completions = new List<HabitCompletion>();
-            habitDict.Add(habit.Id, existing);
-        }
-        if (completion is not null)
-            existing.Completions.Add(completion);
-        return existing;
-    },
-    new { UserId = userId },
-    splitOn: "Id");
-```
-
-## QueryMultiple — múltiplos result sets
+### Mapeamento customizado
 
 ```csharp
-using var multi = await conn.QueryMultipleAsync(
-    @"SELECT * FROM Habits WHERE UserId = @Id;
-      SELECT * FROM Completions WHERE HabitId = ANY(
-        SELECT Id FROM Habits WHERE UserId = @Id)",
-    new { Id = userId });
+// Múltiplos resultados em uma query (Multi Mapping)
+var sql = @"
+    SELECT * FROM Habits WHERE Id = @Id;
+    SELECT * FROM HabitCompletions WHERE HabitId = @Id;";
 
-var habits = await multi.ReadAsync<Habit>();
+using var multi = await conn.QueryMultipleAsync(sql, new { Id = habitId });
+var habit = await multi.ReadSingleOrDefaultAsync<Habit>();
 var completions = await multi.ReadAsync<HabitCompletion>();
 ```
 
----
-
-## Stored Procedures
+### Stored Procedures
 
 ```csharp
 var result = await conn.QueryAsync<Habit>(
-    "sp_get_habits",
+    "get_active_habits",
     new { UserId = userId },
     commandType: CommandType.StoredProcedure);
 ```
 
----
+### Transações com Dapper
 
-## Dapper.Contrib — atalhos CRUD
-
-```bash
-dotnet add package Dapper.Contrib
-```
+Dapper não gerencia transações — você usa a transação do ADO.NET:
 
 ```csharp
-using Dapper.Contrib.Extensions;
+using var conn = new NpgsqlConnection(connectionString);
+await conn.OpenAsync();
+using var tx = await conn.BeginTransactionAsync();
 
-[Table("Habits")]
-public class Habit
+try
 {
-    [ExplicitKey] public Guid Id { get; set; }
-    public string Name { get; set; }
-    [Write(false)] public DateTime CreatedAt { get; set; }
-    [Computed] public int CompletionCount { get; set; }
+    await conn.ExecuteAsync(
+        "INSERT INTO Habits (...) VALUES (...)", new { ... }, tx);
+    await conn.ExecuteAsync(
+        "INSERT INTO HabitCompletions (...) VALUES (...)", new { ... }, tx);
+
+    await tx.CommitAsync();
+}
+catch
+{
+    await tx.RollbackAsync();
+    throw;
+}
+```
+
+Note que a transação é passada como parâmetro para cada chamada Dapper. Sem isso, cada `ExecuteAsync` rodaria em uma transão implícita separada.
+
+---
+
+## Dapper vs EF Core: quando usar cada um
+
+| Critério | Dapper | EF Core |
+|---|---|---|
+| **Performance** | Muito próximo de ADO.NET puro | ~5-15% overhead sobre Dapper (Change Tracker, LINQ→SQL) |
+| **Produtividade** | SQL manual — mais código | LINQ — menos código, type-safe |
+| **Migrations** | Não tem — use ferramentas externas (DbUp, FluentMigrator) | Nativo via `dotnet ef migrations` |
+| **Change Tracking** | Não tem — você controla tudo | Automático — detecta mudanças e gera UPDATEs parciais |
+| **Query composition** | Limitada — SQL como string | Expression trees — totalmente composable |
+| **Aprendizado** | Só precisa saber SQL e C# | Precisa aprender o EF Core (mapeamento, tracking, migrations) |
+
+### Cenários onde Dapper brilha
+
+1. **Queries complexas com performance crítica**: relatórios com múltiplos JOINs, CTEs, window functions que são difíceis ou impossíveis de expressar em LINQ
+2. **Sistemas com SQL já otimizado**: você herda um banco com stored procedures, views e índices complexos — Dapper executa o SQL existente sem tentar "traduzir"
+3. **Bulk operations**: inserir 100.000 registros com Dapper é significativamente mais rápido que com EF Core (sem Change Tracker, sem detectar mudanças)
+4. **Microsserviços simples**: se o serviço tem 3 queries SQL, Dapper resolve com menos dependências que o EF Core
+
+### Cenários onde EF Core brilha
+
+1. **Aplicações com lógica de negócio complexa**: o Change Tracker detecta o que mudou e gera UPDATEs precisos
+2. **Domínios que evoluem rápido**: migrations versionadas mantêm banco e código sincronizados
+3. **Equipes que não têm DBA**: escrever LINQ é mais seguro que escrever SQL manual (sem injection, type-safe)
+4. **CRUD com muitos relacionamentos**: `Include()` e `ThenInclude()` são mais produtivos que escrever JOINs manualmente
+
+### A estratégia híbrida (usada em produção real)
+
+Muitos projetos .NET usam EF Core para comandos (INSERT, UPDATE, DELETE) e Dapper para queries de leitura complexas. Isso combina o melhor dos dois mundos:
+
+```csharp
+// EF Core para comandos (Change Tracker + migrations)
+public class EventRepository : IEventRepository
+{
+    private readonly AppDbContext _db;
+    public void Add(Event @event) => _db.Events.Add(@event);
+    public async Task SaveChangesAsync() => await _db.SaveChangesAsync();
 }
 
-await conn.InsertAsync(habit);
-await conn.UpdateAsync(habit);
-await conn.DeleteAsync(habit);
-var habit = await conn.GetAsync<Habit>(id);
-var all = await conn.GetAllAsync<Habit>();
+// Dapper para queries complexas (performance)
+public class EventReportService
+{
+    private readonly IDbConnection _conn;
+    public async Task<SalesReport> GetSalesReport(DateTime from, DateTime to)
+    {
+        return await _conn.QuerySingleAsync<SalesReport>(@"
+            SELECT
+                COUNT(*) AS TotalSales,
+                SUM(t.Price) AS TotalRevenue
+            FROM Tickets t
+            JOIN Sessions s ON t.SessionId = s.Id
+            WHERE t.PurchasedAt BETWEEN @From AND @To",
+            new { From = from, To = to });
+    }
+}
 ```
-
-Só serve pra CRUD simples. Queries complexas = Dapper puro.
 
 ---
 
-## Performance comparativa
+## Checklist: você entendeu o tópico quando conseguir...
 
-| Operação | EF Core | Dapper | ADO.NET puro |
-|---|---|---|---|
-| SELECT 1 row | 0.3ms | 0.15ms | 0.1ms |
-| SELECT 1000 rows | 8ms | 3ms | 2ms |
-| INSERT 1000 rows | 50ms | 20ms | 15ms |
-
-**Na prática**: o gargalo é a query/rede, não o ORM. A diferença importa em hot paths e relatórios pesados.
-
----
-
-## Quando usar cada um?
-
-| EF Core | Dapper |
-|---|---|
-| Projeto novo, CRUD padrão | SQL complexo que EF não traduz bem |
-| Equipe grande, padronização | Controle total sobre a query |
-| Migrations automáticas | Performance crítica (hot path) |
-| Relacionamentos complexos | Relatórios, queries analíticas |
-| Prototipagem rápida | Stored procedures, banco legado |
-
-**Abordagem híbrida** (comum em projetos reais): EF Core pra transações/CRUD, Dapper pra queries de leitura (CQRS leve). Na mesma transação:
-
-```csharp
-using var transaction = await _db.Database.BeginTransactionAsync();
-var conn = _db.Database.GetDbConnection();
-
-_db.Habits.Add(habit);
-await _db.SaveChangesAsync(); // EF Core
-
-await conn.ExecuteAsync(       // Dapper — mesma transação
-    "INSERT INTO AuditLog (...) VALUES (...)",
-    new { habit.Id, Action = "CREATE" },
-    transaction: transaction.GetDbTransaction());
-
-await transaction.CommitAsync();
-```
+- [ ] Explicar a diferença fundamental entre Dapper (executa seu SQL, mapeia resultados) e EF Core (traduz LINQ para SQL, rastreia mudanças)
+- [ ] Usar `QueryAsync<T>`, `QuerySingleOrDefaultAsync<T>`, `ExecuteAsync` e `ExecuteScalarAsync<T>`
+- [ ] Implementar uma transação manual com `IDbTransaction` passada para cada chamada Dapper
+- [ ] Escolher Dapper para queries complexas/performance crítica e EF Core para comandos com Change Tracker
+- [ ] Conhecer a estratégia híbrida (EF Core para escrita, Dapper para leitura)

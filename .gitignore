@@ -2,6 +2,7 @@
 csharp-katas/
 eventhub/
 habitrack/
+api-performance-lab/
 
 # .NET build artifacts
 bin/
