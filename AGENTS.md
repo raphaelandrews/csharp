@@ -30,6 +30,8 @@ Este é um projeto de aprendizado de **C# e .NET**, seguindo um plano estruturad
 
 8. **Incentivar prática sobre teoria** — sempre que possível, sugerir exercícios concretos, variações dos projetos práticos, ou desafios extras para fixar o conteúdo.
 
+9. **Código é resultado, não o conteúdo principal** — cada arquivo `.md` de tópico deve explicar profundamente o assunto, com o código servindo como ilustração da explicação, não o contrário. O formato ideal é: conceito → problema que resolve → como funciona → código de exemplo → variações/trade-offs. Nunca entregue um arquivo que seja majoritariamente código com comentários superficiais.
+
 ## Estrutura de arquivos e repositórios
 
 A pasta `csharp/` é o **workspace-mãe** — contém apenas os arquivos de planejamento (`ROADMAP.md`, `AGENTS.md`, `.gitignore`). Ela é versionada com Git e contém apenas esses 3 arquivos no commit.
@@ -71,3 +73,8 @@ O fluxo é: cada vez que um tópico é explicado, o conteúdo vai para um arquiv
 - **Código sempre com sintaxe destacada** e pronto para copiar/colar
 - **Prefira snippets pequenos e focados** em vez de arquivos inteiros, a menos que o contexto exija
 - **Foco em C# idiomático** — código seguindo as convenções da comunidade .NET, sem comparações com outras linguagens
+- **Explicar antes de codar** — para cada tópico, comece explicando o conceito, o problema que ele resolve e o "porquê" por trás da abordagem. Só depois mostre o código. Evite arquivos que são 90% código e 10% explicação; o equilíbrio ideal é ~50/50, com as explicações contextualizando o código, não apenas legendando-o.
+- **Cenários de uso reais** — para cada padrão ou técnica, explique em quais situações concretas ele se aplica (e em quais NÃO se aplica). Ex: "Repository Pattern faz sentido quando você tem lógica de query reutilizável ou precisa mockar acesso a dados em testes. Em CRUD simples, adiciona complexidade desnecessária."
+- **Trade-offs explícitos** — sempre que houver mais de uma forma de fazer algo, compare as alternativas com prós e contras reais, não apenas liste opções.
+- **Explicações arquivo a arquivo** — cada arquivo `.md` de tópico deve ser auto-contido e completo. Quem abrir o arquivo isoladamente (sem ler os anteriores) deve conseguir entender o tópico do início ao fim.
+- **Diagramas e tabelas de decisão** — quando relevante, use tabelas de comparação, fluxogramas ASCII ou listas de "quando usar X vs Y" para facilitar a consulta rápida.

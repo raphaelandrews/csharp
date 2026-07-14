@@ -56,7 +56,10 @@
 
 ### Projeto prático
 **`habitrack-api`** — API de acompanhamento de hábitos (tipo um "streak tracker" simples): usuário cria hábitos, marca conclusão diária, vê sequência atual. Endpoints de CRUD de hábitos + registro de conclusões + autenticação JWT básica.
-
+mit commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/raphaelandrews/habitrack-api.git
+git push -u origin main
 **Critério de pronto:** API rodando com pelo menos 3 endpoints CRUD, com DI configurada corretamente e Swagger documentando tudo.
 
 ---
@@ -64,12 +67,12 @@
 ## Fase 3 — Persistência de dados (3-4 semanas)
 
 ### Tópicos
-- Entity Framework Core (ORM) — migrations, DbContext, relacionamentos (1:N, N:N)
-- Dapper (micro-ORM, mais próximo do que você já fez com SQL puro em Go) — muitas vagas pedem os dois
-- Diferença entre Code First e Database First
-- Transações e concorrência otimista/pessimista
-- Repository Pattern e Unit of Work (padrões que aparecem MUITO em entrevistas de C#)
-- SQL Server (o banco mais associado ao ecossistema .NET no mercado corporativo brasileiro) — pelo menos noções básicas, mesmo usando Postgres no dia a dia
+- [x] Entity Framework Core (ORM)
+- [x] Dapper (micro-ORM)
+- [x] Code First vs Database First
+- [x] Transações e concorrência otimista/pessimista
+- [x] Repository Pattern e Unit of Work (padrões que aparecem MUITO em entrevistas de C#)
+- [x] SQL Server (o banco mais associado ao ecossistema .NET no mercado corporativo brasileiro) — pelo menos noções básicas, mesmo usando Postgres no dia a dia
 
 ### Projeto prático
 Adicionar persistência real ao seu projeto da Fase 2 usando EF Core com SQL Server (ou Postgres), incluindo migrations versionadas.
@@ -83,11 +86,11 @@ Adicionar persistência real ao seu projeto da Fase 2 usando EF Core com SQL Ser
 ## Fase 4 — Testes, qualidade e boas práticas (2-3 semanas)
 
 ### Tópicos
-- xUnit (testes unitários) — já viu na Fase 1, agora aprofundar
-- Testes de integração com `WebApplicationFactory`
-- Mocking com Moq ou NSubstitute
-- SOLID aplicado a C# (você já deve conhecer os princípios, aqui é ver os idiomas específicos da linguagem)
-- Clean Code e convenções da comunidade .NET (bem mais rígidas em convenção de nomenclatura que Go)
+- [x] xUnit (testes unitários) — já viu na Fase 1, agora aprofundar
+- [x] Testes de integração com `WebApplicationFactory`
+- [x] Mocking com Moq ou NSubstitute
+- [x] SOLID aplicado a C# (você já deve conhecer os princípios, aqui é ver os idiomas específicos da linguagem)
+- [x] Clean Code e convenções da comunidade .NET (bem mais rígidas em convenção de nomenclatura que Go)
 
 ### Projeto prático
 Cobrir o projeto da Fase 3 com testes unitários + pelo menos 1 teste de integração end-to-end do fluxo de autenticação.
@@ -105,11 +108,11 @@ Se você chegou até aqui com os projetos práticos funcionando, você já está
 ## Fase 5 — Arquitetura de software (4-6 semanas)
 
 ### Tópicos
-- Clean Architecture / Arquitetura em camadas (Domain, Application, Infrastructure, API)
-- Domain-Driven Design (DDD) — pelo menos os conceitos táticos (Entities, Value Objects, Aggregates)
-- CQRS (Command Query Responsibility Segregation) — muito comum em vagas .NET pleno/sênior
-- MediatR (biblioteca que implementa o padrão Mediator, quase onipresente em projetos .NET corporativos)
-- Design Patterns clássicos aplicados: Factory, Strategy, Decorator, Repository
+- [x] Clean Architecture / Arquitetura em camadas (Domain, Application, Infrastructure, API)
+- [x] Domain-Driven Design (DDD) — pelo menos os conceitos táticos (Entities, Value Objects, Aggregates)
+- [x] CQRS (Command Query Responsibility Segregation) — muito comum em vagas .NET pleno/sênior
+- [x] MediatR (biblioteca que implementa o padrão Mediator, quase onipresente em projetos .NET corporativos)
+- [x] Design Patterns clássicos aplicados: Factory, Strategy, Decorator, Repository
 
 ### Projeto prático
 **`eventhub`** (novo projeto-âncora) — sistema de venda/reserva de ingressos para eventos: cadastro de eventos, sessões com capacidade limitada, reserva de assentos/vagas, confirmação de compra. É um domínio rico o suficiente pra justificar CQRS de verdade (comandos como "ReservarVaga" têm regras de negócio e concorrência reais, diferente de um CRUD simples). Construir com Clean Architecture (Domain, Application, Infrastructure, API) + CQRS via MediatR desde o início.
@@ -121,12 +124,12 @@ Se você chegou até aqui com os projetos práticos funcionando, você já está
 ## Fase 6 — Infraestrutura e Cloud (4-5 semanas)
 
 ### Tópicos
-- Docker (containerizar a API .NET)
-- **Kubernetes (conceitos básicos: pods, deployments, services)** — cada vez mais pedido junto com Docker, mesmo em vagas pleno; não precisa virar especialista, mas precisa saber orquestrar seus próprios containers localmente (ex: via Minikube ou Kind)
-- CI/CD básico (GitHub Actions é suficiente pra portfólio)
-- Azure fundamentals (App Service, Azure SQL, Key Vault) — Azure é o cloud mais associado a .NET no mercado, vale ter pelo menos noção mesmo se as vagas usarem AWS
-- Health checks e observabilidade (Application Insights, OpenTelemetry, ou ferramentas como Dynatrace — aparecem com frequência em vagas pleno/sênior)
-- Variáveis de ambiente e secrets management em produção
+- [x] Docker (containerizar a API .NET)
+- [x] **Kubernetes (conceitos básicos: pods, deployments, services)** — cada vez mais pedido junto com Docker, mesmo em vagas pleno; não precisa virar especialista, mas precisa saber orquestrar seus próprios containers localmente (ex: via Minikube ou Kind)
+- [x] CI/CD básico (GitHub Actions é suficiente pra portfólio)
+- [x] Azure fundamentals (App Service, Azure SQL, Key Vault) — Azure é o cloud mais associado a .NET no mercado, vale ter pelo menos noção mesmo se as vagas usarem AWS
+- [x] Health checks e observabilidade (Application Insights, OpenTelemetry, ou ferramentas como Dynatrace — aparecem com frequência em vagas pleno/sênior)
+- [x] Variáveis de ambiente e secrets management em produção
 
 ### Projeto prático
 Dockerizar o **`eventhub`** e criar um pipeline de CI que roda testes automaticamente a cada push, com deploy em algum serviço gratuito (Azure App Service free tier, Render, ou Railway).
@@ -144,12 +147,12 @@ Com arquitetura sólida + CI/CD + testes consistentes, você está no patamar de
 ## Fase 7 — Sistemas distribuídos e mensageria (5-6 semanas)
 
 ### Tópicos
-- Microsserviços: quando faz sentido e quando é over-engineering (pergunta clássica de entrevista sênior)
-- Mensageria assíncrona: RabbitMQ ou Kafka (pelo menos um dos dois a fundo) — se pretende mirar vagas com stack AWS, vale saber que SQS/SNS resolvem o mesmo problema com outra sintaxe, os conceitos (fila, tópico, consumidor, at-least-once delivery) são os mesmos
-- Padrões de resiliência: Circuit Breaker, Retry, Polly (biblioteca .NET pra isso)
-- Cache distribuído com Redis
-- gRPC como alternativa a REST para comunicação interna entre serviços
-- Idempotência e consistência eventual
+- [x] Microsserviços: quando faz sentido e quando é over-engineering (pergunta clássica de entrevista sênior)
+- [x] Mensageria assíncrona: RabbitMQ ou Kafka (pelo menos um dos dois a fundo) — se pretende mirar vagas com stack AWS, vale saber que SQS/SNS resolvem o mesmo problema com outra sintaxe, os conceitos (fila, tópico, consumidor, at-least-once delivery) são os mesmos
+- [x] Padrões de resiliência: Circuit Breaker, Retry, Polly (biblioteca .NET pra isso)
+- [x] Cache distribuído com Redis
+- [x] gRPC como alternativa a REST para comunicação interna entre serviços
+- [x] Idempotência e consistência eventual
 
 ### Projeto prático
 Quebrar o **`eventhub`** em pelo menos 2 serviços que se comunicam via mensageria: o serviço de reservas publica um evento "ReservaConfirmada", e um serviço de notificações consome esse evento e simula o envio de um e-mail/SMS de confirmação. Adicionar Redis pra cache de disponibilidade de vagas (evita bater no banco a cada consulta de "quantas vagas restam").
