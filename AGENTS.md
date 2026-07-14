@@ -34,22 +34,42 @@ Este é um projeto de aprendizado de **C# e .NET**, seguindo um plano estruturad
 
 ## Estrutura de arquivos e repositórios
 
-A pasta `csharp/` é o **workspace-mãe** — contém apenas os arquivos de planejamento (`ROADMAP.md`, `AGENTS.md`, `.gitignore`). Ela é versionada com Git e contém apenas esses 3 arquivos no commit.
+A pasta `csharp/` é o **workspace-mãe** — contém os arquivos de planejamento (`ROADMAP.md`, `AGENTS.md`, `.gitignore`) e as pastas de cada fase com os arquivos de explicação. É versionada com Git.
 
-Cada fase tem sua própria pasta (`fase-1/`, `fase-2/`, etc.) que contém:
-- **Arquivos de explicação** por tópico (ex: `fase-1/01-tipos-classes-structs.md`, `fase-1/02-oop.md`)
-- **Código do projeto prático** daquela fase
+Cada fase tem sua própria pasta (`fase-1/`, `fase-2/`, etc.) contendo **apenas os arquivos `.md` de explicação** por tópico (ex: `fase-1/01-tipos-classes-structs.md`, `fase-1/02-oop.md`).
 
-Cada pasta de fase é versionada em seu próprio repositório Git, independente do workspace-mãe. O `.gitignore` da raiz já exclui todas as pastas `fase-*/`.
+Os projetos práticos ficam na **raiz do workspace** (`csharp/csharp-katas/`, `csharp/habitrack-api/`, `csharp/eventhub/`) e são versionados em seus próprios repositórios Git independentes — não são trackeados pelo repositório do workspace-mãe (listados no `.gitignore`).
 
-O fluxo é: cada vez que um tópico é explicado, o conteúdo vai para um arquivo numerado dentro da pasta da fase correspondente. Ao final de cada fase, todo o conteúdo (explicações + projeto prático) está versionado em seu próprio repositório.
+O fluxo é: cada vez que um tópico é explicado, o conteúdo vai para um arquivo numerado dentro da pasta da fase correspondente (trackeado pelo repo mãe). O código do projeto prático evolui em seu próprio repositório, na raiz do workspace.
+
+```
+csharp/                          ← repo: csharp (trackeia ROADMAP.md, AGENTS.md, fase-*/)
+├── ROADMAP.md
+├── AGENTS.md
+├── .gitignore
+├── fase-1/                      ← markdowns (tracked)
+│   ├── 01-tipos-classes-structs.md
+│   ├── 02-oop.md
+│   └── ...
+├── fase-2/                      ← markdowns (tracked)
+├── fase-3/                      ← markdowns (tracked)
+├── fase-4/                      ← markdowns (tracked)
+├── fase-5/                      ← markdowns (tracked)
+├── fase-6/                      ← markdowns (tracked)
+├── fase-7/                      ← markdowns (tracked)
+├── csharp-katas/                ← repo próprio (não tracked)
+├── habitrack/
+│   ├── habitrack-api/            ← repo próprio (não tracked)
+│   └── habitrack-api.Tests/
+└── eventhub/                    ← repo próprio (não tracked)
+```
 
 | Projeto | Fase | Repositório próprio |
 |---|---|---|
-| `fase-1/csharp-katas` | 1 | Estruturas de dados + LINQ, console app com xUnit |
-| `fase-2/habitrack-api` | 2-4 | API de hábitos com ASP.NET Core + EF Core + JWT |
-| `fase-5/eventhub` | 5-8 | Projeto-âncora: sistema de vendas de ingressos |
-| `fase-8/api-performance-lab` | 8 | Satélite para experimentos de performance |
+| `csharp-katas/` | 1 | Estruturas de dados + LINQ, console app com xUnit |
+| `habitrack/habitrack-api/` | 2-4 | API de hábitos com ASP.NET Core + EF Core + JWT |
+| `eventhub/` | 5-8 | Projeto-âncora: sistema de vendas de ingressos |
+| `api-performance-lab/` | 8 | Satélite para experimentos de performance |
 
 ## Stack e ferramentas
 

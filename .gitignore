@@ -1,7 +1,7 @@
-# Pastas de fase — cada uma versionada em seu próprio repositório Git
-fase-*/
-fase_*
-Fase*
+# Projetos práticos — cada um versionado em seu próprio repositório Git
+csharp-katas/
+eventhub/
+habitrack/
 
 # .NET build artifacts
 bin/
